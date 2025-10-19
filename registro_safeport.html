@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Muestra - BioSafePort</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f8f5;
+      color: #333;
+      margin: 40px;
+    }
+    h1 {
+      text-align: center;
+      color: #157347;
+    }
+    form {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      background-color: #198754;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #157347;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Registro de Muestra - BioSafePort</h1>
+
+  <form id="formulario">
+    <label for="idPaciente">ID del Paciente:</label>
+    <input type="text" id="idPaciente" name="idPaciente" placeholder="Ejemplo: BSP-00123" required>
+
+    <label for="tipoPrueba">Tipo de Prueba(s) Solicitada(s):</label>
+    <textarea id="tipoPrueba" name="tipoPrueba" rows="3" placeholder="Ejemplo: Hemograma, VIH, Glucosa..." required></textarea>
+
+    <label for="fechaExtraccion">Fecha y Hora de Extracción:</label>
+    <input type="datetime-local" id="fechaExtraccion" name="fechaExtraccion" required>
+
+    <button type="submit">Registrar Datos</button>
+  </form>
+
+  <script>
+    // 1️⃣ Obtener cavidad desde la URL (escaneo NFC)
+    const urlParams = new URLSearchParams(window.location.search);
+    const cavidad = urlParams.get('cavidad'); // Ej: CAV-01
+
+    // 2️⃣ Tu URL de Google Apps Script
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyJHt9NH5DJp6TzOnb4a7ft5_CxhRlakaX77hNSgLW75hvlOSu2oAgh0mCikkP6KIPD/exec";
+
+    // 3️⃣ Manejar envío del formulario
+    document.getElementById("formulario").addEventListener("submit", e => {
+      e.preventDefault();
+
+      // 4️⃣ Datos a enviar
+      const data = {
+        idPaciente: document.getElementById("idPaciente").value,
+        tipoPrueba: document.getElementById("tipoPrueba").value,
+        fechaExtraccion: document.getElementById("fechaExtraccion").value,
+        cavidad: cavidad || "No especificada" // si no viene del NFC
+      };
+
+      // 5️⃣ Enviar datos a Google Sheets
+      fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify(data)
+      })
+      .then(response => {
+        alert("✅ Registro enviado correctamente a Google Sheets.\nCavidad: " + data.cavidad);
+        document.getElementById("formulario").reset();
+      })
+      .catch(error => alert("❌ Error al enviar los datos: " + error));
+    });
+  </script>
+
+</body>
+</html>
